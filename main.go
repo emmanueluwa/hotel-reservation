@@ -3,16 +3,16 @@ package main
 import (
 	"context"
 	"flag"
-	"fmt"
+	
 	"log"
 
+
 	"github.com/emmanueluwa/hotel-reservation/api"
-	"github.com/emmanueluwa/hotel-reservation/types"
+	"github.com/emmanueluwa/hotel-reservation/db"
 	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-    "go.mongodb.org/mongo-driver/bson"
-)
+   )
 
 
 const dburi = "mongodb://localhost:27017"
@@ -20,41 +20,23 @@ const dbname = "hotel-reservation"
 const userCollection = "users"
 
 func main() {
-	client, err := mongo.Connect(context.TODO(), options.Client().
-		ApplyURI(dburi))
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	ctx := context.Background()
-	collection := client.Database(dbname).Collection(userCollection)
-	
-	user := types.User{
-		FirstName: "Jack",
-		LastName: "101",
-	}
-
-	_, err = collection.InsertOne(ctx, user)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-    var jack types.User
-    if err := collection.FindOne(ctx, bson.M{}).Decode(&jack); err != nil {
-        log.Fatal(err)
-    }
-    
-    fmt.Println(jack)
-
-	listenAddr := flag.String("listenAddr", ":5000", "The listen address of the API server")
+    	listenAddr := flag.String("listenAddr", ":5000", "The listen address of the API server")
 	flag.Parse()
 
-	app := fiber.New()
+	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(dburi))
+    if err != nil {
+        log.Fatal(err)
+    }
 
+    //initialising handlers
+    userHandler := api.NewUserHandler(db.NewMongoUserStore(client))
+
+	app := fiber.New()
 	apiv1 := app.Group("/api/v1")
 
-	apiv1.Get("/user", api.HandleGetUsers)
-	apiv1.Get("/user/:id", api.HandleGetUser)
+    
+	apiv1.Get("/user", userHandler.HandleGetUsers)
+	apiv1.Get("/user/:id", userHandler.HandleGetUser)
 
 
 	//boot up api server
