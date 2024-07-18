@@ -4,6 +4,10 @@ import
 ( 
     "fmt"
     "errors"
+    
+    "go.mongodb.org/mongo-driver/bson/primitive"
+    
+	"go.mongodb.org/mongo-driver/bson"
    
 	"go.mongodb.org/mongo-driver/mongo"
 
@@ -28,8 +32,28 @@ func NewUserHandler(userStore db.UserStore) *UserHandler {
 
 
 
-func (h *UserHandler) HandlerPutUser(c *fiber.Ctx) error {
-    return nil
+func (h *UserHandler) HandlePutUser(c *fiber.Ctx) error {
+    var (
+        values bson.M
+        userID = c.Params("id")
+    )
+
+    oid, err := primitive.ObjectIDFromHex(userID)
+    if err != nil {
+        return err
+    }
+
+    if err := c.BodyParser(&values); err != nil {
+        return err
+    }
+
+    filter := bson.M{"_id": oid}
+
+    if err := h.userStore.UpdateUser(c.Context(), filter, values); err != nil {
+        return err
+ }
+
+ return c.JSON(map[string]string{"updated": userID})
 }
 
 
