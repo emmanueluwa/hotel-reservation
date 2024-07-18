@@ -1,8 +1,12 @@
 package api
 
-import (
+import
+( 
     "fmt"
-    
+    "errors"
+   
+	"go.mongodb.org/mongo-driver/mongo"
+
 	"github.com/emmanueluwa/hotel-reservation/db"
     
     "github.com/emmanueluwa/hotel-reservation/types"
@@ -67,6 +71,9 @@ func (h *UserHandler)  HandleGetUser(c *fiber.Ctx) error {
 
     user, err := h.userStore.GetUserByID(c.Context(), id)
     if err != nil {
+        if errors.Is(err, mongo.ErrNoDocuments) {
+            return c.JSON(map[string]string{"error": "not found"})
+        }
         return err
     }
 
