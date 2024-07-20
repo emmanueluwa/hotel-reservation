@@ -24,8 +24,9 @@ const (
 
 type Room struct {
     ID primitive.ObjectID `bson:"_id,omitempty" json:"id,omitempty"`
-    Type RoomType `bson:"type" json:"type"`
-    BasePrice float64 `bson:"basePrice" json:"basePrice"`
+    // single, family, couple
+    Size string `bson:"size" json:"size"`
+    Penthouse bool `bson:"penthouse" json:"penthouse"`
     Price float64 `bason:"price" json:"price"`
     HotelID primitive.ObjectID `bson:"hotelID" json:"hotelID"`
 }
