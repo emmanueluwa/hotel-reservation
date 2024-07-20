@@ -6,7 +6,6 @@ import (
 	
 	"log"
 
-
 	"github.com/emmanueluwa/hotel-reservation/api"
 	"github.com/emmanueluwa/hotel-reservation/db"
 	"github.com/gofiber/fiber/v2"
@@ -50,6 +49,7 @@ func main() {
     
     //hotel handlers
     apiv1.Get("/hotel", hotelHandler.HandleGetHotels)
+    apiv1.Get("/hotel/:id/rooms", hotelHandler.HandleGetRooms)
 
 
 	//boot up api server

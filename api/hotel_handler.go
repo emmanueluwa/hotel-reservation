@@ -1,8 +1,9 @@
 package api
 
 import (
-    "fmt"
-
+    
+    "go.mongodb.org/mongo-driver/bson/primitive"
+    "go.mongodb.org/mongo-driver/bson"
     "github.com/emmanueluwa/hotel-reservation/db"
     "github.com/gofiber/fiber/v2"
 )
@@ -20,19 +21,25 @@ func NewHotelHandler(hs db.HotelStore, rs db.RoomStore) *HotelHandler {
     }
 }
 
-type HotelQueryParams struct {
-    //embed document for rooms or not based on frontend request
-    Rooms bool
-}
 
-func (h *HotelHandler) HandleGetHotels(c *fiber.Ctx) error {
-    var qparams HotelQueryParams
-    if err := c.QueryParser(&qparams); err != nil {
+func (h *HotelHandler) HandleGetRooms(c *fiber.Ctx) error {
+    id := c.Params("id")
+    oid, err := primitive.ObjectIDFromHex(id)
+    if err != nil {
         return err
     }
 
-    fmt.Println(qparams)
+    filter := bson.M{"hotelID": oid}
+    rooms, err := h.roomStore.GetRooms(c.Context(), filter)
+    if err != nil {
+        return err
+    }
 
+    return c.JSON(rooms)
+}
+
+
+func (h *HotelHandler) HandleGetHotels(c *fiber.Ctx) error {
     hotels, err := h.hotelStore.GetHotels(c.Context(), nil)
     if err != nil {
         return err
