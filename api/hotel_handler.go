@@ -1,6 +1,7 @@
 package api
 
 import (
+    "fmt"
 
     "github.com/emmanueluwa/hotel-reservation/db"
     "github.com/gofiber/fiber/v2"
@@ -19,7 +20,19 @@ func NewHotelHandler(hs db.HotelStore, rs db.RoomStore) *HotelHandler {
     }
 }
 
+type HotelQueryParams struct {
+    //embed document for rooms or not based on frontend request
+    Rooms bool
+}
+
 func (h *HotelHandler) HandleGetHotels(c *fiber.Ctx) error {
+    var qparams HotelQueryParams
+    if err := c.QueryParser(&qparams); err != nil {
+        return err
+    }
+
+    fmt.Println(qparams)
+
     hotels, err := h.hotelStore.GetHotels(c.Context(), nil)
     if err != nil {
         return err
