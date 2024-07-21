@@ -6,6 +6,7 @@ import (
 	
 	"log"
 
+    "github.com/emmanueluwa/hotel-reservation/middleware"    
 	"github.com/emmanueluwa/hotel-reservation/api"
 	"github.com/emmanueluwa/hotel-reservation/db"
 	"github.com/gofiber/fiber/v2"
@@ -44,7 +45,7 @@ func main() {
         hotelHandler = api.NewHotelHandler(store)
         
         app = fiber.New(config)
-	    apiv1 = app.Group("/api/v1")
+	    apiv1 = app.Group("/api/v1", middleware.JWTAuthentication)
     )
 
 	
