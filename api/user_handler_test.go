@@ -1,8 +1,5 @@
 package api
 
-
-
-
 import (
     "testing"
     "context"
@@ -45,7 +42,7 @@ func setup(t *testing.T) *testdb {
     }      
 
     return &testdb {
-        UserStore: db.NewMongoUserStore(client, dbname),
+        UserStore: db.NewMongoUserStore(client),
     }
 }
 
