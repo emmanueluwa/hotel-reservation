@@ -45,9 +45,13 @@ func main() {
         hotelHandler = api.NewHotelHandler(store)
         
         app = fiber.New(config)
+        auth = app.Group("/api")
 	    apiv1 = app.Group("/api/v1", middleware.JWTAuthentication)
     )
 
+
+    //auth
+    auth.Post("/auth", userHandler.HandleAuthenticate)
 	
     //user handlers
     apiv1.Post("/user", userHandler.HandlePostUser)    
