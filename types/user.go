@@ -69,6 +69,11 @@ func (params CreateUserParams) Validate() map[string]string {
 }
 
 
+func IsValidPassword(encpw, pw string) bool {
+    return bcrypt.CompareHashAndPassword([]byte(encpw), []byte(pw)) == nil
+}
+
+
 func IsEmailValid(email string) bool {
         var emailRegex = regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`)
         return emailRegex.MatchString(email)
