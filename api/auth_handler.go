@@ -5,6 +5,7 @@ import (
     "errors"
     "time"
     "os"
+    "net/http"
 
     "github.com/emmanueluwa/hotel-reservation/db"
     "github.com/emmanueluwa/hotel-reservation/types"
@@ -36,6 +37,21 @@ type AuthResponse struct {
 }
 
 
+type genericResp struct {
+    Type string `json: "type"`
+    Msg string `json: "msg"`
+}
+
+
+func invalidCredentials(c *fiber.Ctx) error  {
+    return c.Status(http.StatusBadRequest).JSON(genericResp{
+        Type: "error",
+        Msg: "invalid credentials",
+    })
+
+}
+
+
 func (h *AuthHandler) HandleAuthenticate(c *fiber.Ctx) error {
     var params AuthParams
 
@@ -46,13 +62,13 @@ func (h *AuthHandler) HandleAuthenticate(c *fiber.Ctx) error {
     user, err := h.userStore.GetUserByEmail(c.Context(), params.Email)
     if err != nil {
         if errors.Is(err, mongo.ErrNoDocuments) {
-            return fmt.Errorf("invalid credentials")
+            return invalidCredentials(c)  
         }
         return err
     }
 
     if !types.IsValidPassword(user.EncryptedPassword, params.Password) {
-        return fmt.Errorf("invalid credentials")
+        return invalidCredentials(c)   
     }
  
     resp := AuthResponse{
