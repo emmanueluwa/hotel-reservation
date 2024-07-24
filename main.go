@@ -3,8 +3,9 @@ package main
 import (
 	"context"
 	"flag"
-	
+    "time"	
 	"log"
+    "fmt"
 
     "github.com/emmanueluwa/hotel-reservation/middleware"    
 	"github.com/emmanueluwa/hotel-reservation/api"
@@ -22,6 +23,9 @@ var config = fiber.Config{
 }
 
 func main() {
+    now := time.Now()
+    fmt.Println(now)  
+
     listenAddr := flag.String("listenAddr", ":5000", "The listen address of the API server")
 	flag.Parse()
 
@@ -35,10 +39,13 @@ func main() {
         hotelStore = db.NewMongoHotelStore(client)
         roomStore = db.NewMongoRoomStore(client, hotelStore)
         userStore = db.NewMongoUserStore(client)
+        bookingStore = db.NewMongoBookingStore(client)
+
         store = &db.Store{
             Hotel: hotelStore,
             Room: roomStore,
             User: userStore,
+            Booking: bookingStore,
         }
 
         userHandler = api.NewUserHandler(userStore)

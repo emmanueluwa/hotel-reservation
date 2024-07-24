@@ -2,7 +2,6 @@ package api
 
 import (
     "time"
-    "fmt"
     "net/http"
 
     "go.mongodb.org/mongo-driver/bson/primitive"
@@ -11,9 +10,10 @@ import (
     "github.com/gofiber/fiber/v2"
 )
 
-type BookRoomResponse struct {
+type BookRoomParams struct {
     FromDate time.Time `json:"fromDate"`
     TillDate time.Time `json:"tillDate"`
+    NumPersons int `json:"numPersons"`
 }
 
 type RoomHandler struct {
@@ -27,6 +27,11 @@ func NewRoomHandler(store *db.Store) *RoomHandler {
 }
 
 func (h *RoomHandler) HandleBookRoom(c *fiber.Ctx) error {
+    var params BookRoomParams
+    if err := c.BodyParser(&params); err != nil {
+        return err
+    }
+
     roomID, err := primitive.ObjectIDFromHex(c.Params("id"))
     if err != nil {
         return err
@@ -43,9 +48,15 @@ func (h *RoomHandler) HandleBookRoom(c *fiber.Ctx) error {
     booking := types.Booking{
         UserID: user.ID,
         RoomID: roomID,
+        FromDate: params.FromDate,
+        TillDate: params.TillDate,
+        NumPersons: params.NumPersons,
     }
 
-    fmt.Println(booking)
-    return nil
+    inserted, err := h.store.Booking.InsertBooking(c.Context(), &booking)
+    if err != nil {
+        return err
+    }
 
+    return c.JSON(inserted)
 }
