@@ -58,6 +58,8 @@ func main() {
         auth = app.Group("/api")
 
 	    apiv1 = app.Group("/api/v1", middleware.JWTAuthentication(userStore))
+        
+        admin = apiv1.Group("/admin", middleware.AdminAuth)
     )
 
 
@@ -83,7 +85,8 @@ func main() {
     //TODO: cancel booking
 
     //booking handlers
-    apiv1.Get("/booking", bookingHandler.HandleGetBookings)
+    admin.Get("/booking", bookingHandler.HandleGetBookings)
+
     apiv1.Get("/booking/:id", bookingHandler.HandleGetBooking)
 
     //boot up api server
