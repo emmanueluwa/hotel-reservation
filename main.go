@@ -52,6 +52,7 @@ func main() {
         hotelHandler = api.NewHotelHandler(store)
         authHandler = api.NewAuthHandler(userStore)
         roomHandler = api.NewRoomHandler(store)
+        bookingHandler = api.NewBookingHandler(store)
         
         app = fiber.New(config)
         auth = app.Group("/api")
@@ -76,9 +77,16 @@ func main() {
     apiv1.Get("/hotel/:id", hotelHandler.HandleGetHotel)
     apiv1.Get("/hotel/:id/rooms", hotelHandler.HandleGetRooms)
 
+    // room handlers
+    apiv1.Get("/room", roomHandler.HandleGetRooms)
     apiv1.Post("/room/:id/book", roomHandler.HandleBookRoom)
+    //TODO: cancel booking
 
-	//boot up api server
+    //booking handlers
+    apiv1.Get("/booking", bookingHandler.HandleGetBookings)
+    apiv1.Get("/booking/:id", bookingHandler.HandleGetBooking)
+
+    //boot up api server
 	app.Listen(*listenAddr)
 }
 
