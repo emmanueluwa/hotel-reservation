@@ -88,6 +88,7 @@ func main() {
     admin.Get("/booking", bookingHandler.HandleGetBookings)
 
     apiv1.Get("/booking/:id", bookingHandler.HandleGetBooking)
+    apiv1.Get("/booking/:id/cancel", bookingHandler.HandleCancelBooking)
 
     //boot up api server
 	app.Listen(*listenAddr)
