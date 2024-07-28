@@ -5,7 +5,10 @@ import (
 	"flag"
     "time"	
 	"log"
+    "net/http"
     "fmt"
+
+    
 
     "github.com/emmanueluwa/hotel-reservation/middleware"    
 	"github.com/emmanueluwa/hotel-reservation/api"
@@ -18,7 +21,11 @@ import (
 
 var config = fiber.Config{
     ErrorHandler: func(c *fiber.Ctx, err error) error {
-        return c.JSON(map[string]string{"error": err.Error()})
+        if apiError, ok := err.(api.Error); ok {
+            return c.Status(apiError.Code).JSON(apiError)
+        }
+        //return error from handler but make it internal server error
+        return api.NewError(http.StatusInternalServerError, err.Error())
     },
 }
 
