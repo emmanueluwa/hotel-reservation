@@ -1,9 +1,10 @@
-package middleware
+package api
 
 
 import (
     "fmt"
     "os"
+    "net/http"
     "time"
     
     "github.com/emmanueluwa/hotel-reservation/db"
@@ -16,7 +17,7 @@ func JWTAuthentication(userStore db.UserStore) fiber.Handler {
         tokens, ok := c.GetReqHeaders()["X-Api-Token"]
         if !ok || len(tokens) == 0 {
             fmt.Println("token not present in header")
-            return fmt.Errorf("unauthorised")
+            return ErrUnAuthorized()
         }
 
         token := tokens[0]
@@ -30,14 +31,15 @@ func JWTAuthentication(userStore db.UserStore) fiber.Handler {
         expires := int64(expiresFloat)
         //check token expiration
         if time.Now().Unix() > expires {
-            return fmt.Errorf("token expired")
+            return NewError(http.StatusUnauthorized, "token expired")
         }
    
         userID := claims["id"].(string)
         user, err := userStore.GetUserByID(c.Context(), userID) 
         if err != nil {
-            return fmt.Errorf("unauthorised")
+            return ErrUnAuthorized()
         }
+
 
         //set current authenticated user to the context
         c.Context().SetUserValue("user", user)
@@ -50,25 +52,25 @@ func validateToken(tokenStr string) (jwt.MapClaims, error) {
     token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
     if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
         fmt.Println("invalid signing method", token.Header["alg"])
-        return nil, fmt.Errorf("unauthorised")
-}
+        return nil, ErrUnAuthorized() 
+    }
     secret := os.Getenv("JWT_SECRET")
     return []byte(secret), nil
     })
 
     if err != nil {
         fmt.Println("failed to parse JWT token:", err)
-        return nil, fmt.Errorf("unwauthorised")
+        return nil, ErrUnAuthorized() 
     }
 
     if !token.Valid {
         fmt.Println("invalid token")
-        return nil, fmt.Errorf("unwauthorised")
+        return nil, ErrUnAuthorized() 
     }
 
     claims, ok := token.Claims.(jwt.MapClaims)
     if !ok {
-        return nil, fmt.Errorf("unauthorised")
+        return nil, ErrUnAuthorized() 
     }
 
     return claims, nil

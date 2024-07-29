@@ -43,9 +43,6 @@ type CreateUserParams struct {
 }
 
 
-
-
-
 func (params CreateUserParams) Validate() map[string]string {
     errors := map[string]string{}
     if len(params.FirstName) < minFirstNameLen {

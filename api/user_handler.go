@@ -2,13 +2,8 @@ package api
 
 import
 ( 
-    "fmt"
     "errors"
     
-    "go.mongodb.org/mongo-driver/bson/primitive"
-    
-	"go.mongodb.org/mongo-driver/bson"
-   
 	"go.mongodb.org/mongo-driver/mongo"
 
 	"github.com/emmanueluwa/hotel-reservation/db"
@@ -17,7 +12,6 @@ import
     
 	"github.com/gofiber/fiber/v2"
 
-    
 )
 
 type UserHandler struct {
@@ -33,21 +27,15 @@ func NewUserHandler(userStore db.UserStore) *UserHandler {
 
 func (h *UserHandler) HandlePutUser(c *fiber.Ctx) error {
     var (
-        //values bson.M
         params types.UpdateUserParams
         userID = c.Params("id")
     )
 
-    oid, err := primitive.ObjectIDFromHex(userID)
-    if err != nil {
-        return err
-    }
-
     if err := c.BodyParser(&params); err != nil {
-        return err
+        return ErrBadRequest()
     }
 
-    filter := bson.M{"_id": oid}
+    filter := db.Map{"_id": userID}
 
     if err := h.userStore.UpdateUser(c.Context(), filter, params); err != nil {
         return err
@@ -69,7 +57,7 @@ func (h *UserHandler) HandleDeleteUser(c *fiber.Ctx) error {
 func (h *UserHandler) HandlePostUser(c *fiber.Ctx) error {
     var params types.CreateUserParams
     if err := c.BodyParser(&params); err != nil {
-        return err
+        return ErrBadRequest()
     }
 
     if errors := params.Validate(); len(errors) > 0 {
@@ -107,10 +95,9 @@ func (h *UserHandler)  HandleGetUser(c *fiber.Ctx) error {
 func (h *UserHandler) HandleGetUsers(c *fiber.Ctx) error {
 	users, err := h.userStore.GetUsers(c.Context())
     if err != nil {
-        return err
+        return ErrResourceNotFound("user")
     }
 
-    fmt.Println(users)
     return c.JSON(users)
 }
 

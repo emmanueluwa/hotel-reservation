@@ -5,12 +5,10 @@ import (
 	"flag"
     "time"	
 	"log"
-    "net/http"
     "fmt"
 
     
 
-    "github.com/emmanueluwa/hotel-reservation/middleware"    
 	"github.com/emmanueluwa/hotel-reservation/api"
 	"github.com/emmanueluwa/hotel-reservation/db"
 	"github.com/gofiber/fiber/v2"
@@ -20,13 +18,7 @@ import (
 
 
 var config = fiber.Config{
-    ErrorHandler: func(c *fiber.Ctx, err error) error {
-        if apiError, ok := err.(api.Error); ok {
-            return c.Status(apiError.Code).JSON(apiError)
-        }
-        //return error from handler but make it internal server error
-        return api.NewError(http.StatusInternalServerError, err.Error())
-    },
+    ErrorHandler: api.ErrorHandler,
 }
 
 func main() {
@@ -64,9 +56,9 @@ func main() {
         app = fiber.New(config)
         auth = app.Group("/api")
 
-	    apiv1 = app.Group("/api/v1", middleware.JWTAuthentication(userStore))
+	    apiv1 = app.Group("/api/v1", api.JWTAuthentication(userStore))
         
-        admin = apiv1.Group("/admin", middleware.AdminAuth)
+        admin = apiv1.Group("/admin", api.AdminAuth)
     )
 
 
