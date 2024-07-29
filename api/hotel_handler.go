@@ -1,7 +1,6 @@
 package api
 
 import (
-    
     "go.mongodb.org/mongo-driver/bson/primitive"
     "go.mongodb.org/mongo-driver/bson"
     "github.com/emmanueluwa/hotel-reservation/db"
@@ -47,10 +46,28 @@ func (h *HotelHandler) HandleGetHotel(c *fiber.Ctx) error {
 }
 
 
+type ResourceResp struct {
+    Results int `json:"results"`
+    Data any `json:"data"`
+    Page int `json:"page"`
+}
+
+
 func (h *HotelHandler) HandleGetHotels(c *fiber.Ctx) error {
-    hotels, err := h.store.Hotel.GetHotels(c.Context(), nil)
+    var pagination db.Pagination 
+    if err := c.QueryParser(&pagination); err != nil {
+        return ErrBadRequest()
+    }
+
+    hotels, err := h.store.Hotel.GetHotels(c.Context(), nil, &pagination)
     if err != nil {
         return ErrResourceNotFound("hotels")    
     }
-    return c.JSON(hotels)
+
+    resp := ResourceResp{
+        Data: hotels,
+        Results: len(hotels),
+        Page: int(pagination.Page),
+    }
+    return c.JSON(resp)
 }

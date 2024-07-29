@@ -3,6 +3,7 @@ package main
 import (
     "context"
     "log"
+    "math/rand"
     "fmt"
     "time"
 
@@ -46,9 +47,15 @@ func main() {
 
     room := fixtures.AddRoom(store, "large", true, 999.99, hotel.ID)
 
-    booking := fixtures.AddBooking(store, user.ID, room.ID, time.Now(), time.Now().AddDate(0,0,5))    
+    booking := fixtures.AddBooking(store, user.ID, room.ID, time.Now(), time.Now().AddDate(0, 0, 5))    
 
     fmt.Println("booking =>", booking.ID)
+
+    for i := 0; i < 100; i++ {
+        name := fmt.Sprintf("sakinah hotel %d", i)
+        location := fmt.Sprintf("location %d", i)
+        fixtures.AddHotel(store, name, location,  rand.Intn(5)+1, nil)
+    }
 
 }
 
