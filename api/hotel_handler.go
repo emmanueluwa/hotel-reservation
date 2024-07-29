@@ -53,13 +53,24 @@ type ResourceResp struct {
 }
 
 
+type HotelQueryParams struct {
+    db.Pagination
+    Rating int 
+}
+
+
 func (h *HotelHandler) HandleGetHotels(c *fiber.Ctx) error {
-    var pagination db.Pagination 
-    if err := c.QueryParser(&pagination); err != nil {
+    var params HotelQueryParams
+
+    if err := c.QueryParser(&params); err != nil {
         return ErrBadRequest()
     }
 
-    hotels, err := h.store.Hotel.GetHotels(c.Context(), nil, &pagination)
+    filter := db.Map{
+        "rating": params.Rating,
+    }
+
+    hotels, err := h.store.Hotel.GetHotels(c.Context(), filter, &params.Pagination)
     if err != nil {
         return ErrResourceNotFound("hotels")    
     }
@@ -67,7 +78,7 @@ func (h *HotelHandler) HandleGetHotels(c *fiber.Ctx) error {
     resp := ResourceResp{
         Data: hotels,
         Results: len(hotels),
-        Page: int(pagination.Page),
+        Page: int(params.Page),
     }
     return c.JSON(resp)
 }
