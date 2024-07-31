@@ -1,13 +1,9 @@
 package db
 
-
-
-const (
-    DBNAME = "hotel-reservation"
-    TestDBNAME = "hotel-reservation-test"
-    DBURI = "mongodb://localhost:27017"
-
+import (
 )
+
+const MongoDBNameEnv = "MONGO_DB_NAME"
 
 type Pagination struct {
     Limit int64
@@ -20,3 +16,4 @@ type Store struct {
     Room RoomStore
     Booking BookingStore
 }
+

@@ -2,33 +2,32 @@ package main
 
 import (
 	"context"
-	"flag"
-    "time"	
 	"log"
-    "fmt"
-
-    
+    "os"
 
 	"github.com/emmanueluwa/hotel-reservation/api"
 	"github.com/emmanueluwa/hotel-reservation/db"
+    "github.com/joho/godotenv" 
 	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
    )
 
 
+// Configuration
+// 1. MONGODB endpoitn
+// 2. ListenAddress for HTTP server
+// 3. JWT secret
+// 4. MONGODBNAME
+
 var config = fiber.Config{
     ErrorHandler: api.ErrorHandler,
 }
 
 func main() {
-    now := time.Now()
-    fmt.Println(now)  
+    mongoEndpoint := os.Getenv("MONGO_DB_URL")
 
-    listenAddr := flag.String("listenAddr", ":5000", "The listen address of the API server")
-	flag.Parse()
-
-	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(db.DBURI))
+	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI( mongoEndpoint ))
     if err != nil {
         log.Fatal(err)
     }
@@ -90,7 +89,13 @@ func main() {
     apiv1.Get("/booking/:id/cancel", bookingHandler.HandleCancelBooking)
 
     //boot up api server
-	app.Listen(*listenAddr)
+    listenAddr := os.Getenv("HTTP_LISTEN_ADDRESS")
+	app.Listen(listenAddr)
 }
 
 
+func init() {
+    if err := godotenv.Load(); err != nil {
+        log.Fatal(err)
+    }  
+}

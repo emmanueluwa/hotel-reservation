@@ -18,9 +18,5 @@ This project provides a backend system for managing hotel reservations. Users ca
 ## Project environment variables
 ---
 
-HTTP_LISTEN_ADDRESS=:3000
-JWT_SECRET=thejwtsecretofallsecrets
-MONGO_DB_NAME=hotel-reservation
-MONGO_DB_URL=mongodb://localhost:27017
-MONGO_DB_URL_TEST=mongodb://localhost:27017
+HTTP_LISTEN_ADDRESS=3000
 ---
